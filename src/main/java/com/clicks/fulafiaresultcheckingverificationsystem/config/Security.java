@@ -95,7 +95,7 @@ public class Security {
     }
 
     @Bean
-    @Profile("dev")
+    @Profile({"dev", "staging"})
     CommandLineRunner commandLineRunner() {
 
         return args -> {
