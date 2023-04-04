@@ -95,7 +95,7 @@ public class Security {
     }
 
     @Bean
-//    @Profile("dev")
+    @Profile("dev")
     CommandLineRunner commandLineRunner() {
 
         return args -> {
@@ -160,6 +160,13 @@ public class Security {
                                 .code("MTH111")
                                 .semester(Semester.FIRST)
                                 .title("General Mathematics")
+                                .unit(3)
+                                .build(),
+
+                        Course.builder()
+                                .code("MTH122")
+                                .semester(Semester.SECOND)
+                                .title("Vector, Geometry and Dynamics")
                                 .unit(3)
                                 .build(),
 

@@ -8,9 +8,13 @@ spring:
     name: fulafia-result-checking-verification-system
 
   jpa:
-    show-sql: true
     hibernate:
       ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+        dialect:
 
 admin:
   sender: ${SENDER_EMAIL}
