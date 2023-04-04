@@ -5,7 +5,7 @@ import com.clicks.fulafiaresultcheckingverificationsystem.dtos.requests.UssdRequ
 import com.clicks.fulafiaresultcheckingverificationsystem.exceptions.InvalidRequestParamException;
 import com.clicks.fulafiaresultcheckingverificationsystem.exceptions.ResourceNotFoundException;
 import com.clicks.fulafiaresultcheckingverificationsystem.model.course.Course;
-import com.clicks.fulafiaresultcheckingverificationsystem.model.student.ResultAnalysis;
+import com.clicks.fulafiaresultcheckingverificationsystem.model.student.*;
 import com.clicks.fulafiaresultcheckingverificationsystem.repository.ResultAnalysisRepository;
 import com.clicks.fulafiaresultcheckingverificationsystem.repository.StudentResultRepository;
 import com.clicks.fulafiaresultcheckingverificationsystem.utils.DtoMapper;
@@ -16,9 +16,6 @@ import com.clicks.fulafiaresultcheckingverificationsystem.enums.Grade;
 import com.clicks.fulafiaresultcheckingverificationsystem.enums.Semester;
 import com.clicks.fulafiaresultcheckingverificationsystem.model.*;
 import com.clicks.fulafiaresultcheckingverificationsystem.model.course.CourseGrade;
-import com.clicks.fulafiaresultcheckingverificationsystem.model.student.Student;
-import com.clicks.fulafiaresultcheckingverificationsystem.model.student.StudentResult;
-import com.clicks.fulafiaresultcheckingverificationsystem.model.student.StudentResultCourse;
 import com.clicks.fulafiaresultcheckingverificationsystem.repository.CourseGradeRepository;
 import com.clicks.fulafiaresultcheckingverificationsystem.repository.StudentResultCourseRepository;
 import com.clicks.fulafiaresultcheckingverificationsystem.utils.SessionCompare;
@@ -30,8 +27,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.function.Function;
 
-import static com.clicks.fulafiaresultcheckingverificationsystem.enums.CourseStatus.FAILED;
-import static com.clicks.fulafiaresultcheckingverificationsystem.enums.CourseStatus.PASSED;
+import static com.clicks.fulafiaresultcheckingverificationsystem.enums.CourseStatus.*;
 import static java.util.Arrays.stream;
 
 @Slf4j
@@ -125,25 +121,35 @@ public class StudentResultService {
                     .concat("/")
                     .concat(sessionInput.substring(5));
 
-            String semester = (String) responseList.get("semester");
             String phoneNumber = ussdRequest.phoneNumber();
 
             try {
 
+                String semester = (String) responseList.get("semester");
+
+                if(Objects.isNull(semester)) {
+                    throw new ResourceNotFoundException("Invalid Input");
+                }
                 Student student = studentService.findStudentByPhone(phoneNumber);
 
                 StudentResultDto studentResult = getStudentResult(student.getMatric(), Optional.of(semester), Optional.of(session));
 
-                String response = responseBuilder(
-                        "Session: ".concat(studentResult.session()),
-                        "Semester: ".concat(studentResult.semester()),
-                        "Name: ".concat(studentResult.name()),
-                        "Level ".concat(studentResult.level()),
-                        prepareResult(studentResult.courseGrades()),
-                        "TCE: ".concat(studentResult.current().totalCreditEarned()),
-                        "TCL: ".concat(studentResult.current().totalCreditLoad()),
-                        "CGPA: ".concat(studentResult.current().gradePointAverage()),
-                        "Remarks: ".concat(studentResult.remarks())
+                String response = studentResult.courseGrades().isEmpty() ?
+                        responseBuilder(
+                                "Session: ".concat(studentResult.session()),
+                                "Semester: ".concat(studentResult.semester()),
+                                "No Result found"
+                        ) :
+                        responseBuilder(
+                                "Session: ".concat(studentResult.session()),
+                                "Semester: ".concat(studentResult.semester()),
+                                "Name: ".concat(studentResult.name()),
+                                "Level ".concat(studentResult.level()),
+                                prepareResult(studentResult.courseGrades()),
+                                "TCE: ".concat(studentResult.current().totalCreditEarned()),
+                                "TCL: ".concat(studentResult.current().totalCreditLoad()),
+                                "CGPA: ".concat(studentResult.current().gradePointAverage()),
+                                "Remarks: ".concat(studentResult.remarks())
                 );
 
 
@@ -201,8 +207,10 @@ public class StudentResultService {
         //Get Student
         Student student = studentService.findStudentByMatric(newStudentResultDto.matric());
 
-        //Check if result is already uploaded
+        //Get student registered courses
+        List<String> courses = student.getCourses().stream().map(c -> c.getCourse().getCode()).toList();
 
+        //Check if result is already uploaded
         List<String> resultCourses = student.getStudentResult().getCourseGrades()
                 .stream()
                 .filter(courseGrade ->
@@ -230,24 +238,38 @@ public class StudentResultService {
 
 
         //Get all failed courses
-        List<String> failedCourses = currentCourseGrades.stream()
-                .filter(courseGrade -> courseGrade.getGrade().equals(Grade.FAIL))
-                .map(courseGrade -> courseGrade.getCourse().getCourse().getCode())
+        List<String> failedCourses = getFailedOrPendingCourses(currentCourseGrades, Grade.FAIL);
+
+        //Get all pending courses
+        List<String> pendingCourses = courses.stream()
+                .filter(co -> !newStudentResultDto.courseScore().containsKey(co))
                 .toList();
 
         //Update student registered courses to reflect failed courses
         student.getCourses().forEach(course -> {
-            if (failedCourses.contains(course.getCourse().getCode())) {
+
+            String courseCode = course.getCourse().getCode();
+
+            if (failedCourses.contains(courseCode)) {
                 course.setCourseStatus(FAILED);
             }
-            else course.setCourseStatus(PASSED);
+            else if(!pendingCourses.contains(courseCode)) {
+                course.setCourseStatus(PASSED);
+            }
+            else course.setCourseStatus(PENDING);
         });
 
+        String failedCoursesRemarks = (failedCourses.isEmpty()) ? "" : "REPEAT ".concat(String.join(", ", failedCourses));
+        String pendingCoursesRemarks = (pendingCourses.isEmpty()) ? "" : "TAKE ".concat(String.join(", ", pendingCourses));
 
-        String remark = (failedCourses.isEmpty()) ? "PASSED" : "Repeat " + String.join(", ", failedCourses);
+
+        String remark = (failedCourses.isEmpty() || pendingCourses.isEmpty()) ?
+                "PASSED" :
+                failedCoursesRemarks
+                        .concat("\n")
+                        .concat(pendingCoursesRemarks);
 
         StudentResult studentResult = student.getStudentResult();
-
 
         List<CourseGrade> savedCourseGrades = courseGradeRepository.saveAllAndFlush(currentCourseGrades)
                 .stream()
@@ -320,6 +342,13 @@ public class StudentResultService {
     private List<CourseGradeDto> getCourseGradeDtos(List<CourseGrade> courseGrades) {
         return courseGrades.stream()
                 .map(dtoMapper.courseGradeDtoMapper)
+                .toList();
+    }
+
+    private List<String> getFailedOrPendingCourses(List<CourseGrade> currentCourseGrades, Grade grade) {
+        return currentCourseGrades.stream()
+                .filter(courseGrade -> courseGrade.getGrade().equals(grade))
+                .map(courseGrade -> courseGrade.getCourse().getCourse().getCode())
                 .toList();
     }
 

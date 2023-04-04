@@ -2,14 +2,12 @@ package com.clicks.fulafiaresultcheckingverificationsystem.config;
 
 import com.clicks.fulafiaresultcheckingverificationsystem.enums.CourseType;
 import com.clicks.fulafiaresultcheckingverificationsystem.enums.Semester;
+import com.clicks.fulafiaresultcheckingverificationsystem.model.ResultGeneralCredential;
 import com.clicks.fulafiaresultcheckingverificationsystem.model.User;
 import com.clicks.fulafiaresultcheckingverificationsystem.model.course.Course;
 import com.clicks.fulafiaresultcheckingverificationsystem.model.department.Department;
 import com.clicks.fulafiaresultcheckingverificationsystem.model.department.DepartmentCourse;
-import com.clicks.fulafiaresultcheckingverificationsystem.repository.CourseRepository;
-import com.clicks.fulafiaresultcheckingverificationsystem.repository.DepartmentCourseRepository;
-import com.clicks.fulafiaresultcheckingverificationsystem.repository.DepartmentRepository;
-import com.clicks.fulafiaresultcheckingverificationsystem.repository.UserRepository;
+import com.clicks.fulafiaresultcheckingverificationsystem.repository.*;
 import com.clicks.fulafiaresultcheckingverificationsystem.service.auth.UserDetailsService;
 
 import lombok.RequiredArgsConstructor;
@@ -50,11 +48,12 @@ public class Security {
     private String staffId;
 
 
-    private final UserDetailsService userDetailsService;
     private final UserRepository userRepository;
     private final CourseRepository courseRepository;
+    private final UserDetailsService userDetailsService;
     private final DepartmentRepository departmentRepository;
     private final DepartmentCourseRepository departmentCourseRepository;
+    private final ResultGeneralCredentialRepository resultGeneralCredentialRepository;
 
 
     @Bean
@@ -122,8 +121,14 @@ public class Security {
                             .build()
             );
 
+            resultGeneralCredentialRepository.save(ResultGeneralCredential.builder()
+                            .currentSession("2021/2022")
+                            .currentSemester(Semester.FIRST)
+                    .build());
+
         };
     }
+
 
     private List<DepartmentCourse> generateDepartmentCourses() {
         return departmentCourseRepository.saveAllAndFlush(
