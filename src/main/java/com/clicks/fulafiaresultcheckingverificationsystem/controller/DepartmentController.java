@@ -20,7 +20,7 @@ import static org.springframework.http.HttpStatus.OK;
 
 @Slf4j
 @RestController
-@CrossOrigin("http://localhost:3000")
+@CrossOrigin("https://fulafia-result-frontend-production.up.railway.app/")
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/department")
 public class DepartmentController {

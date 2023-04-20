@@ -20,7 +20,7 @@ import java.util.Optional;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
-@CrossOrigin("http://localhost:3000")
+@CrossOrigin("https://fulafia-result-frontend-production.up.railway.app/")
 @RequestMapping("/api/v1/student")
 public class StudentController {
 

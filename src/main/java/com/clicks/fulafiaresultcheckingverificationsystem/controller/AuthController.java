@@ -15,7 +15,7 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin("http://localhost:3000")
+@CrossOrigin("https://fulafia-result-frontend-production.up.railway.app/")
 @RequestMapping("/api/v1/auth")
 public class AuthController {
 

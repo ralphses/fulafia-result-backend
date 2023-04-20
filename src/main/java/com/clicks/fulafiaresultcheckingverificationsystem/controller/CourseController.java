@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
-@CrossOrigin("http://localhost:3000")
+@CrossOrigin("https://fulafia-result-frontend-production.up.railway.app/")
 @RestController
 @RequestMapping(value = "/api/v1/course")
 @RequiredArgsConstructor
