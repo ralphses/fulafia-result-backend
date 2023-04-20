@@ -2,7 +2,6 @@ package com.clicks.fulafiaresultcheckingverificationsystem.service;
 
 import com.clicks.fulafiaresultcheckingverificationsystem.dtos.CourseDto;
 import com.clicks.fulafiaresultcheckingverificationsystem.dtos.requests.NewCourseRequest;
-import com.clicks.fulafiaresultcheckingverificationsystem.enums.Level;
 import com.clicks.fulafiaresultcheckingverificationsystem.enums.Semester;
 import com.clicks.fulafiaresultcheckingverificationsystem.exceptions.InvalidRequestParamException;
 import com.clicks.fulafiaresultcheckingverificationsystem.exceptions.ResourceNotFoundException;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static java.util.Arrays.stream;
 
 @Slf4j
 @Service
@@ -53,7 +51,7 @@ public class CourseService {
     public List<CourseDto> getCourses(Integer page) {
 
         return courseRepository.findAll(PageRequest.of((page < 1) ? 0 : (page - 1), 10))
-                .map(course -> new CourseDto(course.getTitle(), course.getCode(), course.getUnit()))
+                .map(course -> new CourseDto(course.getTitle(), course.getCode(), course.getSemester().name(), course.getUnit()))
                 .toList();
     }
 

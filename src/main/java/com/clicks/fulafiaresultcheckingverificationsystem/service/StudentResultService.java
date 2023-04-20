@@ -130,6 +130,7 @@ public class StudentResultService {
                 if(Objects.isNull(semester)) {
                     throw new ResourceNotFoundException("Invalid Input");
                 }
+
                 Student student = studentService.findStudentByPhone(phoneNumber);
 
                 StudentResultDto studentResult = getStudentResult(student.getMatric(), Optional.of(semester), Optional.of(session));
@@ -204,11 +205,17 @@ public class StudentResultService {
         ResultGeneralCredential resultGeneralCredential =
                 resultGeneralCredentialService.getResultGeneralCredential();
 
-        //Get Student
+        Map<String, String> courseScoreMap = new HashMap<>();
+        newStudentResultDto.courseScore().forEach(course -> courseScoreMap.put(course.course(), course.score()));
+
+        //Get Student with matric number
         Student student = studentService.findStudentByMatric(newStudentResultDto.matric());
 
         //Get student registered courses
-        List<String> courses = student.getCourses().stream().map(c -> c.getCourse().getCode()).toList();
+        List<String> courses = student.getCourses()
+                .stream()
+                .map(c -> c.getCourse().getCode())
+                .toList();
 
         //Check if result is already uploaded
         List<String> resultCourses = student.getStudentResult().getCourseGrades()
@@ -221,7 +228,7 @@ public class StudentResultService {
                 .toList();
 
         //Prepare student courses and their grades
-        List<CourseGrade> currentCourseGrades = newStudentResultDto.courseScore().entrySet().stream()
+        List<CourseGrade> currentCourseGrades = courseScoreMap.entrySet().stream()
                 .filter(co -> !resultCourses.contains(co.getKey()))
                 .map(result -> {
 
@@ -242,7 +249,7 @@ public class StudentResultService {
 
         //Get all pending courses
         List<String> pendingCourses = courses.stream()
-                .filter(co -> !newStudentResultDto.courseScore().containsKey(co))
+                .filter(co -> !courseScoreMap.containsKey(co))
                 .toList();
 
         //Update student registered courses to reflect failed courses
@@ -252,18 +259,19 @@ public class StudentResultService {
 
             if (failedCourses.contains(courseCode)) {
                 course.setCourseStatus(FAILED);
-            }
-            else if(!pendingCourses.contains(courseCode)) {
+            } else if (!pendingCourses.contains(courseCode)) {
                 course.setCourseStatus(PASSED);
             }
-            else course.setCourseStatus(PENDING);
+//            else course.setCourseStatus(PENDING);
+
+
         });
 
+        //Prepare remarks for both failed and pending courses
         String failedCoursesRemarks = (failedCourses.isEmpty()) ? "" : "REPEAT ".concat(String.join(", ", failedCourses));
         String pendingCoursesRemarks = (pendingCourses.isEmpty()) ? "" : "TAKE ".concat(String.join(", ", pendingCourses));
 
-
-        String remark = (failedCourses.isEmpty() || pendingCourses.isEmpty()) ?
+        String remark = (failedCourses.isEmpty() && pendingCourses.isEmpty()) ?
                 "PASSED" :
                 failedCoursesRemarks
                         .concat("\n")
@@ -289,6 +297,7 @@ public class StudentResultService {
         studentResult.setCurrentSession(resultGeneralCredential.getCurrentSession());
         studentResult.setCurrentSession(resultGeneralCredential.getCurrentSession());
         studentResult.setCurrentResultAnalysis(resultAnalysis);
+
     }
 
     public StudentResultDto getStudentResult(String matric, Optional<String> semester, Optional<String> session) {
@@ -359,7 +368,6 @@ public class StudentResultService {
                 .map(getCourseGradePoint())
                 .reduce(Integer::sum)
                 .orElse(0);
-
     }
 
     private ResultAnalysis getResultAnalysis(List<CourseGrade> latestCourseGrades) {
@@ -382,7 +390,6 @@ public class StudentResultService {
                 .totalGradePoint((double) totalGradePoint)
                 .gradePointAverage(gradeAveragePoint)
                 .build();
-
     }
 
     private int calculateTotalGradePoint(List<CourseGrade> courseGrades) {
@@ -446,7 +453,6 @@ public class StudentResultService {
 
         ResultAnalysis resultAnalysis = getResultAnalysis(latestCourseGrades);
 
-
         //Prepare course grade DTO
         List<CourseGradeDto> courseGradeDtos = getCourseGradeDtos(latestCourseGrades);
 
@@ -485,10 +491,8 @@ public class StudentResultService {
                     .currentSession(resultGeneralCredential.getCurrentSession())
                     .currentSemester(resultGeneralCredential.getCurrentSemester())
                     .build();
-
             return studentResultCourseRepository.saveAndFlush(studentResultCourse);
         }
-
     }
 
     private String responseBuilder(String... inputs) {

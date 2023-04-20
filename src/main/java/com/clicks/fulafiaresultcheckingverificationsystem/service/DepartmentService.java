@@ -13,6 +13,7 @@ import com.clicks.fulafiaresultcheckingverificationsystem.repository.DepartmentR
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,7 +30,9 @@ public class DepartmentService {
 
     public List<DepartmentDto> getDepartments(Integer page) {
 
-        return departmentRepository.findAll(PageRequest.of((page <= 1) ? 0 : page, 10))
+        Pageable pages = PageRequest.of((page <= 1) ? 0 : page, 10);
+
+        return departmentRepository.findAll(pages)
                 .map(dtoMapper.departmentDtoConverter)
                 .getContent();
     }

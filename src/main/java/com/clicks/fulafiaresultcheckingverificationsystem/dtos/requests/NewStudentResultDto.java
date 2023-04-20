@@ -1,8 +1,10 @@
 package com.clicks.fulafiaresultcheckingverificationsystem.dtos.requests;
 
+import com.clicks.fulafiaresultcheckingverificationsystem.dtos.CourseScore;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 
+import java.util.List;
 import java.util.Map;
 
 public record NewStudentResultDto(
@@ -11,6 +13,6 @@ public record NewStudentResultDto(
         String matric,
 
         @NotEmpty(message = "courses and score required")
-        Map<String, String> courseScore
+        List<CourseScore> courseScore
 ) {
 }

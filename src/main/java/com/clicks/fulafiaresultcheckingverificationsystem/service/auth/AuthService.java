@@ -24,11 +24,13 @@ public class AuthService {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
 
-    public void login(LoginRequestDto loginRequestDto) {
+    public boolean login(LoginRequestDto loginRequestDto) {
         User user = userService.findUserByEmail(loginRequestDto.email());
         if(!passwordEncoder.matches(loginRequestDto.password(), user.getPassword())) {
             throw new UnauthorizedUserException("Invalid Login Credentials");
         }
+
+        return true;
     }
 
     public void resetPassword(PasswordModel passwordModel) {

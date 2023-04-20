@@ -29,7 +29,8 @@ public class DtoMapper {
             new DepartmentCourseDto(
                     departmentCourse.getLevel(),
                     departmentCourse.getType().name(),
-                    departmentCourse.getCourse().getCode() + " " + departmentCourse.getCourse().getTitle());
+                    departmentCourse.getCourse().getTitle(),
+                    departmentCourse.getCourse().getCode());
 
     public  Function<Department, DepartmentDto> departmentDtoConverter = (department) ->
             new DepartmentDto(
@@ -43,7 +44,7 @@ public class DtoMapper {
 
     public Function<StudentRegisteredCourse, CourseDto> studentCourseToCourseDto = (course) ->
             new CourseDto(course.getCourse().getTitle(),
-                    course.getCourse().getCode(), course.getCourse().getUnit());
+                    course.getCourse().getCode(),course.getCourse().getSemester().name(), course.getCourse().getUnit());
 
     public Function<Student, StudentDto> studentToStudentDto = (student) ->
             new StudentDto(
@@ -52,6 +53,7 @@ public class DtoMapper {
                     student.getMatric(),
                     student.getEmail(),
                     student.getDepartment().getName(),
+                    false,
                     student.getCourses().stream()
                             .map(studentCourseToCourseDto)
                             .toList()

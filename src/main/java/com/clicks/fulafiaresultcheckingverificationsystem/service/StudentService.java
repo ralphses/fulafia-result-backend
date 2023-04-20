@@ -50,7 +50,7 @@ public class StudentService {
         ResultGeneralCredential resultGeneralCredential =
                 resultGeneralCredentialService.getResultGeneralCredential();
 
-        int currentLevel = Level.valueOf(newStudentRequest.level()).getValue();
+        int currentLevel = Level.valueOf(newStudentRequest.level().replace(" ", "_")).getValue();
 
         String resultCode = buildResultCode(newStudentRequest.name(), newStudentRequest.phone());
 
@@ -214,7 +214,11 @@ public class StudentService {
                 student.getMatric(),
                 student.getEmail(),
                 student.getDepartment().getName(),
+                false,
                 student.getCourses().stream()
+                        .filter(course -> course.getCourseStatus().equals(PENDING) || course.getCourseStatus().equals(FAILED) && !(
+                                        course.getCurrentSession().equals(resultGeneralCredentialService.getResultGeneralCredential().getCurrentSession()) &&
+                                        course.getCurrentSemester().equals(resultGeneralCredentialService.getResultGeneralCredential().getCurrentSemester())))
                         .map(dtoMapper.studentCourseToCourseDto)
                         .toList());
     }

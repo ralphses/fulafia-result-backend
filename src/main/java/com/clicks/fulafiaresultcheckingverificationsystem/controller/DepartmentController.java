@@ -9,6 +9,7 @@ import com.clicks.fulafiaresultcheckingverificationsystem.utils.ResponseMessage;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,7 +18,9 @@ import java.util.Map;
 
 import static org.springframework.http.HttpStatus.OK;
 
+@Slf4j
 @RestController
+@CrossOrigin("http://localhost:3000")
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/department")
 public class DepartmentController {
@@ -25,9 +28,9 @@ public class DepartmentController {
     private final DepartmentService departmentService;
 
     @GetMapping(value = "/{page}")
-    public ResponseEntity<ResponseMessage> getDepartments(@PathVariable Integer page) {
+    public ResponseEntity<List<DepartmentDto>> getDepartments(@PathVariable Integer page) {
         List<DepartmentDto> departments = departmentService.getDepartments(page);
-        return ResponseEntity.ok(new ResponseMessage("SUCCESS", 0, Map.of("departments", departments)));
+        return ResponseEntity.ok( departments);
     }
 
     @PostMapping(value = "/new")

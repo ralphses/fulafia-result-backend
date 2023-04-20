@@ -20,6 +20,7 @@ import java.util.Optional;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
+@CrossOrigin("http://localhost:3000")
 @RequestMapping("/api/v1/student")
 public class StudentController {
 
@@ -29,13 +30,14 @@ public class StudentController {
     public ResponseEntity<ResponseMessage> addNewStudent(
             @RequestBody @Valid NewStudentRequest newStudentRequest) {
 
+        log.info("Request {}", newStudentRequest);
         studentService.addNewStudent(newStudentRequest);
 
         return ResponseEntity.ok(new ResponseMessage("SUCCESS", 0, Map.of()));
     }
 
     @GetMapping(value = "/{page}")
-    public ResponseEntity<ResponseMessage> getStudents(@PathVariable Integer page) {
+    public ResponseEntity<ResponseMessage> getStudents(@PathVariable(required = false) Integer page) {
 
         List<StudentDto> students = studentService
                 .getStudents(Optional.of(page).orElse(1));
@@ -47,10 +49,8 @@ public class StudentController {
     @GetMapping(value = "/find/{matric}")
     public ResponseEntity<ResponseMessage> findStudentByMatric(@PathVariable @NotBlank String matric) {
 
-        return ResponseEntity.ok(new ResponseMessage(
-                "SUCCESS",
-                0,
-                Map.of("student", studentService.findStudentDtoByMatric(matric))));
+        StudentDto student = studentService.findStudentDtoByMatric(matric);
+        return ResponseEntity.ok(new ResponseMessage("SUCCESS", 0, Map.of("student", student)));
     }
 
     @PostMapping(value = "/register/course/{matric}")

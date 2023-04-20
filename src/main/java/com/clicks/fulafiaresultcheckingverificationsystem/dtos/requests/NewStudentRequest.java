@@ -16,7 +16,7 @@ public record NewStudentRequest(
         @Size(max = 11, min = 11, message = "Student phone not valid")
         String phone,
 
-        @Email(message = "Email field is required")
+        @Email(message = "Enter a valid email address")
         String email,
 
         @NotBlank(message = "Department field required")

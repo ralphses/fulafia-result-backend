@@ -12,9 +12,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-@RestController
 @Slf4j
+@RestController
 @RequiredArgsConstructor
+@CrossOrigin("http://localhost:3000")
 @RequestMapping("/api/v1/auth")
 public class AuthController {
 
@@ -25,11 +26,11 @@ public class AuthController {
 
         log.debug("Login requested for user {} ", loginRequestDto.email());
 
-        authService.login(loginRequestDto);
+        boolean loginResult = authService.login(loginRequestDto);
 
         log.debug("Login granted for user {} ", loginRequestDto.email());
 
-        return  ResponseEntity.ok(new ResponseMessage("SUCCESS", 0, Map.of()));
+        return  ResponseEntity.ok(new ResponseMessage("SUCCESS", 0, Map.of("status", loginResult)));
 
     }
 
@@ -37,6 +38,8 @@ public class AuthController {
     @PutMapping(path = "/password-reset")
     public ResponseEntity<ResponseMessage> passWordReset(@RequestBody @Valid PasswordModel passwordModel) {
         authService.resetPassword(passwordModel);
+
         return ResponseEntity.ok(new ResponseMessage("success", 0, Map.of()));
     }
 }
+

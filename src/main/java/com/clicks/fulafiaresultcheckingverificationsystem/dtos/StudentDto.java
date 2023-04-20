@@ -8,6 +8,7 @@ public record StudentDto(
         String matric,
         String email,
         String department,
+        Boolean checked,
         List<CourseDto> courses
 
 ) {
