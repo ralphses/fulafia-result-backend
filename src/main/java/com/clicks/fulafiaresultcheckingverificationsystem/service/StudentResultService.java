@@ -173,7 +173,7 @@ public class StudentResultService {
                 StudentResult result = getStudentResultByResultCode(resultCode);
 
                 if(Objects.isNull(result.getCurrentResultAnalysis())) {
-                    throw new ResourceNotFoundException("AUTHENTIC\n But no Result found uploaded yet");
+                    throw new ResourceNotFoundException("AUTHENTIC\n But no result uploaded yet");
                 }
                 String classDegree = getClassDegree(result.getCurrentResultAnalysis().getGradePointAverage());
 
