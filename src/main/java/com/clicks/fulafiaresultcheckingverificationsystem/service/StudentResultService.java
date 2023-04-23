@@ -171,6 +171,10 @@ public class StudentResultService {
 
             try {
                 StudentResult result = getStudentResultByResultCode(resultCode);
+
+                if(result.getCurrentResultAnalysis().getGradePointAverage() <= 0) {
+                    throw new ResourceNotFoundException("AUTHENTIC\n But no Result found uploaded yet");
+                }
                 String classDegree = getClassDegree(result.getCurrentResultAnalysis().getGradePointAverage());
 
                 String institutionName = "FEDERAL UNIVERSITY OF LAFIA";
