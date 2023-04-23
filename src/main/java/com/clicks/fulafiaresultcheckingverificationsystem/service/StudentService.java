@@ -90,7 +90,7 @@ public class StudentService {
 
         int nameLength = name.length();
 
-        return phone.substring(1)
+        return phone.replace("+234", "")
                 .concat(String.valueOf(nameLength < 10 ? "0" + nameLength : nameLength));
     }
 
