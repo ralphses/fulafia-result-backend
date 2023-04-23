@@ -13,7 +13,7 @@ public record NewStudentRequest(
         String matric,
 
         @NotBlank(message = "Student phone number field required")
-        @Size(max = 11, min = 11, message = "Student phone not valid")
+        @Size(max = 15, min = 11, message = "Student phone not valid")
         String phone,
 
         @Email(message = "Enter a valid email address")

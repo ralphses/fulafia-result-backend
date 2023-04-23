@@ -20,7 +20,6 @@ import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VAL
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin("https://fulafia-result-frontend-production.up.railway.app/")
 @RequestMapping("/api/v1/result")
 public class StudentResultController {
 
@@ -29,8 +28,6 @@ public class StudentResultController {
     @PostMapping(value = "/add")
     public ResponseEntity<ResponseMessage> addNewResult(
             @RequestBody @Valid NewStudentResultDto newStudentResultDto) {
-
-        log.info("Request -> {}", newStudentResultDto);
 
         studentResultService.addNewStudentResult(newStudentResultDto);
 

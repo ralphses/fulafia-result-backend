@@ -1,5 +1,6 @@
 package com.clicks.fulafiaresultcheckingverificationsystem.service;
 
+import com.clicks.fulafiaresultcheckingverificationsystem.dtos.NewStudentResponseDto;
 import com.clicks.fulafiaresultcheckingverificationsystem.utils.DtoMapper;
 import com.clicks.fulafiaresultcheckingverificationsystem.dtos.StudentDto;
 import com.clicks.fulafiaresultcheckingverificationsystem.dtos.StudentRegisteredCourseDto;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Random;
 
 import static com.clicks.fulafiaresultcheckingverificationsystem.enums.CourseStatus.FAILED;
@@ -43,7 +45,7 @@ public class StudentService {
     private final DtoMapper dtoMapper;
     private final DepartmentService departmentService;
 
-    public void addNewStudent(NewStudentRequest newStudentRequest) {
+    public NewStudentResponseDto addNewStudent(NewStudentRequest newStudentRequest) {
 
         int passcode = new Random().nextInt(100000, 999999);
 
@@ -52,7 +54,11 @@ public class StudentService {
 
         int currentLevel = Level.valueOf(newStudentRequest.level().replace(" ", "_")).getValue();
 
-        String resultCode = buildResultCode(newStudentRequest.name(), newStudentRequest.phone());
+        String studentName = newStudentRequest.name();
+        String providedPhone = newStudentRequest.phone();
+        String studentPhone = providedPhone.startsWith("0") ? "+234" + providedPhone.substring(1) : providedPhone;
+
+        String resultCode = buildResultCode(studentName, studentPhone);
 
         //Get all registered courses for this new student
         List<StudentRegisteredCourse> savedStudentCourses = getStudentRegisteredCourses(
@@ -63,11 +69,11 @@ public class StudentService {
 
         //Build new student object
         Student newStudent = Student.builder()
-                .phone(newStudentRequest.phone())
+                .phone(studentPhone)
                 .passcode(String.valueOf(passcode))
                 .matric(newStudentRequest.matric())
                 .department(departmentService.findDepartmentByName(newStudentRequest.department()))
-                .name(newStudentRequest.name())
+                .name(studentName)
                 .email(newStudentRequest.email())
                 .courses(savedStudentCourses)
                 .currentLevel(currentLevel)
@@ -75,7 +81,9 @@ public class StudentService {
                 .build();
 
         //Save to database
-        studentRepository.save(newStudent);
+        Student savedStudent = studentRepository.saveAndFlush(newStudent);
+
+        return new NewStudentResponseDto(studentName, savedStudent.getMatric(), savedStudent.getStudentResult().getResultCode(), savedStudent.getPasscode());
     }
 
     private String buildResultCode(String name, String phone) {
@@ -87,11 +95,22 @@ public class StudentService {
     }
 
 
-    public List<StudentDto> getStudents(Integer page) {
+    public List<StudentDto> getStudents(Integer page, Optional<String> all) {
 
-        return studentRepository.findAll(PageRequest.of((page < 1) ? 0 : (page - 1), 10))
-                .map(this::buildStudentDto)
-                .toList();
+        PageRequest pg = PageRequest.of((page < 1) ? 0 : (page - 1), 10);
+
+        if(all.isPresent()) {
+            return  studentRepository.findAll(pg)
+                    .map(dtoMapper.studentToStudentDto)
+                    .toList();
+
+        }else {
+            return studentRepository.findAll(pg)
+                    .map(this::buildStudentDto)
+                    .toList();
+        }
+
+
     }
 
     /**

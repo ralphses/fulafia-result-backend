@@ -15,7 +15,6 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin("https://fulafia-result-frontend-production.up.railway.app/")
 @RequestMapping("/api/v1/auth")
 public class AuthController {
 
@@ -33,7 +32,6 @@ public class AuthController {
         return  ResponseEntity.ok(new ResponseMessage("SUCCESS", 0, Map.of("status", loginResult)));
 
     }
-
 
     @PutMapping(path = "/password-reset")
     public ResponseEntity<ResponseMessage> passWordReset(@RequestBody @Valid PasswordModel passwordModel) {

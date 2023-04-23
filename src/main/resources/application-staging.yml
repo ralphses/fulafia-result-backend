@@ -16,5 +16,5 @@ admin:
   name: ${ADMIN_NAME}
   staffId: ${STAFF_ID}
 
-
-
+  frontend:
+    url: ${FRONTEND_URL}

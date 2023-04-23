@@ -15,14 +15,12 @@ import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
-@CrossOrigin("https://fulafia-result-frontend-production.up.railway.app/")
 @RestController
 @RequestMapping(value = "/api/v1/course")
 @RequiredArgsConstructor
 public class CourseController {
 
     private final CourseService courseService;
-
 
     @PostMapping(value = "/add")
     public ResponseEntity<ResponseMessage> add(@RequestBody @Valid NewCourseRequest newCourseRequest) {
@@ -33,9 +31,9 @@ public class CourseController {
     }
 
     @GetMapping(value = "/all/{page}")
-    public ResponseEntity<ResponseMessage> getCourses(@PathVariable(required = false) Integer page)  {
+    public ResponseEntity<ResponseMessage> getCourses(@PathVariable(required = false) Integer page, @RequestParam(required = false, name = "department") String department )  {
 
-        List<CourseDto> courses = courseService.getCourses(Optional.of(page).orElse(1));
+        List<CourseDto> courses = courseService.getCourses(Optional.of(page).orElse(1), Optional.ofNullable(department));
 
         return ResponseEntity.ok(new ResponseMessage("SUCCESS", 0, Map.of("courses", courses)));
 

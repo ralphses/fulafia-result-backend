@@ -262,9 +262,6 @@ public class StudentResultService {
             } else if (!pendingCourses.contains(courseCode)) {
                 course.setCourseStatus(PASSED);
             }
-//            else course.setCourseStatus(PENDING);
-
-
         });
 
         //Prepare remarks for both failed and pending courses

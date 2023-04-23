@@ -13,7 +13,6 @@ import java.util.Map;
 
 @Slf4j
 @RestController
-@CrossOrigin("https://fulafia-result-frontend-production.up.railway.app/")
 @RequiredArgsConstructor
 @RequestMapping(value = "/api/v1/initialize")
 public class ResultGeneralCredentialController {

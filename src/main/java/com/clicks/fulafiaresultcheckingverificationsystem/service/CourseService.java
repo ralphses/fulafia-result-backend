@@ -6,7 +6,9 @@ import com.clicks.fulafiaresultcheckingverificationsystem.enums.Semester;
 import com.clicks.fulafiaresultcheckingverificationsystem.exceptions.InvalidRequestParamException;
 import com.clicks.fulafiaresultcheckingverificationsystem.exceptions.ResourceNotFoundException;
 import com.clicks.fulafiaresultcheckingverificationsystem.model.course.Course;
+import com.clicks.fulafiaresultcheckingverificationsystem.model.department.Department;
 import com.clicks.fulafiaresultcheckingverificationsystem.repository.CourseRepository;
+import com.clicks.fulafiaresultcheckingverificationsystem.repository.DepartmentRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Slf4j
@@ -23,6 +26,8 @@ import java.util.List;
 public class CourseService {
 
     private final CourseRepository courseRepository;
+//    private final DepartmentService departmentService;
+    private final DepartmentRepository departmentRepository;
 
     /**
      * Function to add new Course to the system
@@ -48,11 +53,25 @@ public class CourseService {
        }
     }
 
-    public List<CourseDto> getCourses(Integer page) {
+    public List<CourseDto> getCourses(Integer page, Optional<String> departmentName) {
 
-        return courseRepository.findAll(PageRequest.of((page < 1) ? 0 : (page - 1), 10))
-                .map(course -> new CourseDto(course.getTitle(), course.getCode(), course.getSemester().name(), course.getUnit()))
-                .toList();
+        return departmentName.map(s -> departmentRepository.findDepartmentByName(s)
+                        .orElseThrow(() -> new ResourceNotFoundException("Invalid department name " + s))
+                        .getCourses()
+                        .stream()
+                        .map(course -> new CourseDto(
+                                course.getCourse().getTitle(),
+                                course.getCourse().getCode(),
+                                course.getCourse().getSemester().name(),
+                                course.getCourse().getUnit()))
+                        .toList())
+                .orElseGet(() -> courseRepository.findAll(PageRequest.of((page < 1) ? 0 : (page - 1), 10))
+                        .map(course -> new CourseDto(
+                                course.getTitle(),
+                                course.getCode(),
+                                course.getSemester().name(),
+                                course.getUnit()))
+                        .toList());
     }
 
     public void deleteCourse(String code) {

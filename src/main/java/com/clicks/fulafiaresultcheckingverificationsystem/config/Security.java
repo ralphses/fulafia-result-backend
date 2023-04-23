@@ -16,13 +16,18 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static com.clicks.fulafiaresultcheckingverificationsystem.enums.UserRole.ADMIN;
@@ -44,6 +49,9 @@ public class Security {
     @Value("${admin.staffId}")
     private String staffId;
 
+    @Value("${admin.frontend.url}")
+    private String frontEndUrl;
+
 
     private final UserRepository userRepository;
     private final CourseRepository courseRepository;
@@ -59,7 +67,7 @@ public class Security {
         return httpSecurity
 
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(withDefaults())
+                .cors(httpSecurityCorsConfigurer -> corsConfigurationSource())
 
                 .authorizeHttpRequests(auth -> auth
                         .anyRequest().permitAll())
@@ -67,10 +75,24 @@ public class Security {
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
 
                 .userDetailsService(userDetailsService)
-                .formLogin()
+                .httpBasic()
                 .and()
 
                 .build();
+    }
+
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+
+        CorsConfiguration corsConfiguration = new CorsConfiguration();
+        corsConfiguration.setAllowedOrigins(List.of(frontEndUrl));
+        corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
+        corsConfiguration.setAllowedHeaders(List.of("*"));
+
+        UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
+        urlBasedCorsConfigurationSource.registerCorsConfiguration("/api/**", corsConfiguration);
+
+        return urlBasedCorsConfigurationSource;
     }
 
     @Bean

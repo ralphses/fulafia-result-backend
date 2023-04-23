@@ -1,5 +1,6 @@
 package com.clicks.fulafiaresultcheckingverificationsystem.controller;
 
+import com.clicks.fulafiaresultcheckingverificationsystem.dtos.NewStudentResponseDto;
 import com.clicks.fulafiaresultcheckingverificationsystem.dtos.StudentDto;
 import com.clicks.fulafiaresultcheckingverificationsystem.dtos.StudentRegisteredCourseDto;
 import com.clicks.fulafiaresultcheckingverificationsystem.dtos.requests.NewStudentRequest;
@@ -20,27 +21,25 @@ import java.util.Optional;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
-@CrossOrigin("https://fulafia-result-frontend-production.up.railway.app/")
 @RequestMapping("/api/v1/student")
 public class StudentController {
 
     private final StudentService studentService;
-
     @PostMapping("/add")
     public ResponseEntity<ResponseMessage> addNewStudent(
             @RequestBody @Valid NewStudentRequest newStudentRequest) {
 
         log.info("Request {}", newStudentRequest);
-        studentService.addNewStudent(newStudentRequest);
+        NewStudentResponseDto savedStudent = studentService.addNewStudent(newStudentRequest);
 
-        return ResponseEntity.ok(new ResponseMessage("SUCCESS", 0, Map.of()));
+        return ResponseEntity.ok(new ResponseMessage("SUCCESS", 0, Map.of("student", savedStudent)));
     }
 
     @GetMapping(value = "/{page}")
-    public ResponseEntity<ResponseMessage> getStudents(@PathVariable(required = false) Integer page) {
+    public ResponseEntity<ResponseMessage> getStudents(@PathVariable(required = false) Integer page, @RequestParam(name = "all", required = false) String all) {
 
         List<StudentDto> students = studentService
-                .getStudents(Optional.of(page).orElse(1));
+                .getStudents(Optional.of(page).orElse(1), Optional.ofNullable(all));
 
         return ResponseEntity.ok(new ResponseMessage("SUCCESS", 0, Map.of("students", students)));
 

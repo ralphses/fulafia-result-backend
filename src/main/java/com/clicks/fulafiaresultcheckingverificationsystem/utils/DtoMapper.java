@@ -43,8 +43,11 @@ public class DtoMapper {
             );
 
     public Function<StudentRegisteredCourse, CourseDto> studentCourseToCourseDto = (course) ->
-            new CourseDto(course.getCourse().getTitle(),
-                    course.getCourse().getCode(),course.getCourse().getSemester().name(), course.getCourse().getUnit());
+            new CourseDto(
+                    course.getCourse().getTitle(),
+                    course.getCourse().getCode(),
+                    course.getCourse().getSemester().name(),
+                    course.getCourse().getUnit());
 
     public Function<Student, StudentDto> studentToStudentDto = (student) ->
             new StudentDto(

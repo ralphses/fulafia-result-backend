@@ -87,6 +87,7 @@ public class DepartmentService {
     }
 
     public DepartmentDto findDepartment(String departmentName) {
+
         return Stream.of(findDepartmentByName(departmentName))
                 .map(dtoMapper.departmentDtoConverter).findFirst()
                 .orElseThrow(() -> new ResourceNotFoundException("Invalid department name " + departmentName));

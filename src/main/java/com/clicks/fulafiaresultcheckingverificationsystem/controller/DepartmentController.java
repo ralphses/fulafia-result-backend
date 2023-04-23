@@ -20,7 +20,7 @@ import static org.springframework.http.HttpStatus.OK;
 
 @Slf4j
 @RestController
-@CrossOrigin("https://fulafia-result-frontend-production.up.railway.app/")
+//@CrossOrigin("http://localhost:3000")
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/department")
 public class DepartmentController {
@@ -60,5 +60,4 @@ public class DepartmentController {
     public ResponseEntity<ResponseMessage> getDepartment(@RequestParam(value = "department") String department) {
         return ResponseEntity.ok(new ResponseMessage("SUCCESS", 0, Map.of("department", departmentService.findDepartment(department))));
     }
-
 }
