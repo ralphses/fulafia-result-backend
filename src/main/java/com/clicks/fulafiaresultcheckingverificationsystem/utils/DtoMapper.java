@@ -57,6 +57,8 @@ public class DtoMapper {
                     student.getEmail(),
                     student.getDepartment().getName(),
                     false,
+                    student.getPasscode(),
+                    student.getStudentResult().getResultCode(),
                     student.getCourses().stream()
                             .map(studentCourseToCourseDto)
                             .toList()

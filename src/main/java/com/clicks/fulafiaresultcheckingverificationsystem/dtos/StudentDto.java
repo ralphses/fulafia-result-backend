@@ -9,6 +9,8 @@ public record StudentDto(
         String email,
         String department,
         Boolean checked,
+        String resultCode,
+        String passCode,
         List<CourseDto> courses
 
 ) {

@@ -234,6 +234,8 @@ public class StudentService {
                 student.getEmail(),
                 student.getDepartment().getName(),
                 false,
+                student.getPasscode(),
+                student.getStudentResult().getResultCode(),
                 student.getCourses().stream()
                         .filter(course -> course.getCourseStatus().equals(PENDING) || course.getCourseStatus().equals(FAILED) && !(
                                         course.getCurrentSession().equals(resultGeneralCredentialService.getResultGeneralCredential().getCurrentSession()) &&
