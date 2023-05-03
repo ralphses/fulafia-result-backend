@@ -45,8 +45,9 @@ public class StudentController {
 
     }
 
-    @GetMapping(value = "/find/{matric}")
-    public ResponseEntity<ResponseMessage> findStudentByMatric(@PathVariable @NotBlank String matric) {
+    @GetMapping(value = "/find")
+    public ResponseEntity<ResponseMessage> findStudentByMatric(
+            @RequestParam(name = "matric") String matric) {
 
         StudentDto student = studentService.findStudentDtoByMatric(matric);
         return ResponseEntity.ok(new ResponseMessage("SUCCESS", 0, Map.of("student", student)));
