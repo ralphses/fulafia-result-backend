@@ -9,6 +9,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -18,12 +20,25 @@ public class ResultGeneralCredentialService {
 
     public void init(ResultGeneralCredentialRequestDto resultGeneralCredentialRequestDto) {
 
-        ResultGeneralCredential resultGeneralCredential = ResultGeneralCredential.builder()
-                .currentSemester(Semester.valueOf(resultGeneralCredentialRequestDto.semester()))
-                .currentSession(resultGeneralCredentialRequestDto.session())
-                .build();
+        Optional<ResultGeneralCredential> current = resultGeneralCredentialRepository
+                .findAll()
+                .stream()
+                .findFirst();
 
-        resultGeneralCredentialRepository.save(resultGeneralCredential);
+        if(current.isPresent()) {
+            ResultGeneralCredential resultGeneralCredential = current.get();
+            resultGeneralCredential.setCurrentSession(resultGeneralCredentialRequestDto.session());
+            resultGeneralCredential.setCurrentSemester(Semester.valueOf(resultGeneralCredentialRequestDto.semester()));
+        }
+        else {
+
+            ResultGeneralCredential resultGeneralCredential = ResultGeneralCredential.builder()
+                    .currentSemester(Semester.valueOf(resultGeneralCredentialRequestDto.semester()))
+                    .currentSession(resultGeneralCredentialRequestDto.session())
+                    .build();
+
+            resultGeneralCredentialRepository.save(resultGeneralCredential);
+        }
     }
 
     public ResultGeneralCredential getResultGeneralCredential() {

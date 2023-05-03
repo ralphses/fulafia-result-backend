@@ -20,7 +20,12 @@ public class ResultGeneralCredentialController {
     private final ResultGeneralCredentialService resultGeneralCredentialService;
 
     @PostMapping("/")
-    public ResponseEntity<ResponseMessage> init(@RequestBody @Valid ResultGeneralCredentialRequestDto resultGeneralCredentialRequestDto) {
+    public ResponseEntity<ResponseMessage> init(
+            @RequestBody
+            @Valid
+            ResultGeneralCredentialRequestDto resultGeneralCredentialRequestDto) {
+
+        log.info("Request {}", resultGeneralCredentialRequestDto);
 
         resultGeneralCredentialService.init(resultGeneralCredentialRequestDto);
 

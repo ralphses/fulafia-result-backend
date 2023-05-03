@@ -153,7 +153,6 @@ public class StudentResultService {
                                 "Remarks: ".concat(studentResult.remarks())
                 );
 
-
                 return prepareResponse(response, true);
 
             }catch (ResourceNotFoundException | NullPointerException exception) {
@@ -290,7 +289,18 @@ public class StudentResultService {
         }
 
         //Create result detail
-        ResultAnalysis resultAnalysis = resultAnalysisRepository.saveAndFlush(getResultAnalysis(savedCourseGrades));
+        setStudentResultCredentials(resultGeneralCredential, remark, studentResult, savedCourseGrades);
+
+    }
+
+    private void setStudentResultCredentials(
+            ResultGeneralCredential resultGeneralCredential,
+            String remark,
+            StudentResult studentResult,
+            List<CourseGrade> savedCourseGrades) {
+
+        ResultAnalysis resultAnalysis =
+                resultAnalysisRepository.saveAndFlush(getResultAnalysis(savedCourseGrades));
 
         studentResult.setCurrentRemarks(remark);
         studentResult.getCourseGrades().addAll(savedCourseGrades);
@@ -298,10 +308,12 @@ public class StudentResultService {
         studentResult.setCurrentSession(resultGeneralCredential.getCurrentSession());
         studentResult.setCurrentSession(resultGeneralCredential.getCurrentSession());
         studentResult.setCurrentResultAnalysis(resultAnalysis);
-
     }
 
-    public StudentResultDto getStudentResult(String matric, Optional<String> semester, Optional<String> session) {
+    public StudentResultDto getStudentResult(
+            String matric,
+            Optional<String> semester,
+            Optional<String> session) {
 
         Student student = studentService.findStudentByMatric(matric);
 
@@ -320,7 +332,10 @@ public class StudentResultService {
                 "CON ".concat(message);
     }
 
-    private List<CourseGrade> getCourseGrades(Optional<String> semester, Optional<String> session, StudentResult studentResult) {
+    private List<CourseGrade> getCourseGrades(
+            Optional<String> semester,
+            Optional<String> session,
+            StudentResult studentResult) {
 
         if (semester.isPresent() && session.isPresent()) {
             return getCourseGradeList(semester, session, studentResult);

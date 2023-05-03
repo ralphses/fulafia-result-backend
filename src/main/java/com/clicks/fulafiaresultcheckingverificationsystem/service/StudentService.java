@@ -45,8 +45,16 @@ public class StudentService {
     private final DtoMapper dtoMapper;
     private final DepartmentService departmentService;
 
+    /**
+     * Function registers new student to the system
+     *
+     * @param newStudentRequest contains detailed information of this new students
+     * @return {@link NewStudentResponseDto} containing information of the newly registered student
+     */
     public NewStudentResponseDto addNewStudent(NewStudentRequest newStudentRequest) {
 
+        //Generate new result passcode for this user
+        //THis is used for USSD result checking
         int passcode = new Random().nextInt(100000, 999999);
 
         ResultGeneralCredential resultGeneralCredential =
@@ -139,10 +147,14 @@ public class StudentService {
            //Find student with this matric number
            Student student = findStudentByMatric(matric);
 
+           //Get all registered courses for this student
            List<String> studentCourses = student.getCourses()
                    .stream()
                    .map(co -> co.getCourse().getCode())
                    .toList();
+
+           //Create new level for this student
+           int newStudentLevel = student.getCurrentLevel() + 1;
 
            //Get all course models from the course codes selected by the student
            List<StudentRegisteredCourse> newCourses = registerStudentCoursesRequest.courses()
@@ -151,7 +163,7 @@ public class StudentService {
                    .map(courseService::findCourseByCode)
                    .map(course -> StudentRegisteredCourse.builder()
                            .currentSemester(resultGeneralCredential.getCurrentSemester())
-                           .currentLevel(registerStudentCoursesRequest.level())
+                           .currentLevel(newStudentLevel)
                            .courseStatus(PENDING)
                            .course(course)
                            .currentSession(resultGeneralCredential.getCurrentSession())
@@ -164,13 +176,11 @@ public class StudentService {
            student.getCourses().addAll(studentRegisteredCourses);
 
            //Set student current level
-           student.setCurrentLevel(registerStudentCoursesRequest.level());
+           student.setCurrentLevel(newStudentLevel);
 
        } catch (Exception e) {
-           throw new InvalidRequestParamException("Invalid level " + registerStudentCoursesRequest.level());
+           throw new InvalidRequestParamException("Invalid level ");
        }
-
-
     }
 
     /**

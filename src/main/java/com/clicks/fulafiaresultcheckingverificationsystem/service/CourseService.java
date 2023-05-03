@@ -6,9 +6,10 @@ import com.clicks.fulafiaresultcheckingverificationsystem.enums.Semester;
 import com.clicks.fulafiaresultcheckingverificationsystem.exceptions.InvalidRequestParamException;
 import com.clicks.fulafiaresultcheckingverificationsystem.exceptions.ResourceNotFoundException;
 import com.clicks.fulafiaresultcheckingverificationsystem.model.course.Course;
-import com.clicks.fulafiaresultcheckingverificationsystem.model.department.Department;
+import com.clicks.fulafiaresultcheckingverificationsystem.model.student.Student;
 import com.clicks.fulafiaresultcheckingverificationsystem.repository.CourseRepository;
 import com.clicks.fulafiaresultcheckingverificationsystem.repository.DepartmentRepository;
+import com.clicks.fulafiaresultcheckingverificationsystem.repository.StudentRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,9 +27,9 @@ import java.util.Optional;
 public class CourseService {
 
     private final CourseRepository courseRepository;
-//    private final DepartmentService departmentService;
     private final DepartmentRepository departmentRepository;
 
+    private final StudentRepository studentRepository;
     /**
      * Function to add new Course to the system
      *
@@ -53,9 +54,9 @@ public class CourseService {
        }
     }
 
-    public List<CourseDto> getCourses(Integer page, Optional<String> departmentName) {
+    public List<CourseDto> getCourses(Integer page, Optional<String> departmentName, Optional<String> matric) {
 
-        return departmentName.map(s -> departmentRepository.findDepartmentByName(s)
+        List<CourseDto> courseDtos = departmentName.map(s -> departmentRepository.findDepartmentByName(s)
                         .orElseThrow(() -> new ResourceNotFoundException("Invalid department name " + s))
                         .getCourses()
                         .stream()
@@ -72,6 +73,24 @@ public class CourseService {
                                 course.getSemester().name(),
                                 course.getUnit()))
                         .toList());
+
+        if(matric.isPresent()) {
+
+            Student student = studentRepository.findStudentByMatric(matric.get())
+                    .orElseThrow(() -> new ResourceNotFoundException("invalid student matric " + matric.get()));
+
+            List<String> studentCourses = student.getCourses()
+                    .stream()
+                    .map(course -> course.getCourse().getCode())
+                    .toList();
+
+            return courseDtos
+                    .stream()
+                    .filter(courseDto -> !studentCourses.contains(courseDto.code()))
+                    .toList();
+        }
+
+        return courseDtos;
     }
 
     public void deleteCourse(String code) {

@@ -31,9 +31,15 @@ public class CourseController {
     }
 
     @GetMapping(value = "/all/{page}")
-    public ResponseEntity<ResponseMessage> getCourses(@PathVariable(required = false) Integer page, @RequestParam(required = false, name = "department") String department )  {
+    public ResponseEntity<ResponseMessage> getCourses(
+            @PathVariable(required = false) Integer page,
+            @RequestParam(required = false, name = "department") String department,
+            @RequestParam(required = false, name = "matric") String matric)  {
 
-        List<CourseDto> courses = courseService.getCourses(Optional.of(page).orElse(1), Optional.ofNullable(department));
+        List<CourseDto> courses = courseService.getCourses(
+                Optional.of(page).orElse(1),
+                Optional.ofNullable(department),
+                Optional.ofNullable(matric));
 
         return ResponseEntity.ok(new ResponseMessage("SUCCESS", 0, Map.of("courses", courses)));
 
