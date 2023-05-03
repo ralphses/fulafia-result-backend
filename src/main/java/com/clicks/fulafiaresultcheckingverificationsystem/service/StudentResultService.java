@@ -58,7 +58,7 @@ public class StudentResultService {
                     "Welcome to FULafia Results",
                     "Select one option below",
                     "1. Student Check Result",
-                    "2. Authenticate Result");
+                    "2. Verify Certificate");
 
             return prepareResponse(response, false);
         }
@@ -163,7 +163,7 @@ public class StudentResultService {
         }
         else if (text.equals("2")) {
 
-            return prepareResponse(responseBuilder("Enter Result Verification Code on certificate"), false);
+            return prepareResponse(responseBuilder("Enter Certificate Verification Code on certificate"), false);
         }
         else if (text.replace("*", "").matches("^2[0-9]{12}$")) {
 
