@@ -136,16 +136,15 @@ public class StudentService {
     /**
      * Function to register new courses for a student in a particular level
      *
-     * @param matric student unique matriculation number
      * @param registerStudentCoursesRequest a DTO that contains all data for course registration
      */
 
-    public void registerCourses(String matric, RegisterStudentCoursesRequest registerStudentCoursesRequest) {
+    public void registerCourses(RegisterStudentCoursesRequest registerStudentCoursesRequest) {
 
         ResultGeneralCredential resultGeneralCredential = resultGeneralCredentialService.getResultGeneralCredential();
        try {
            //Find student with this matric number
-           Student student = findStudentByMatric(matric);
+           Student student = findStudentByMatric(registerStudentCoursesRequest.matric());
 
            //Get all registered courses for this student
            List<String> studentCourses = student.getCourses()

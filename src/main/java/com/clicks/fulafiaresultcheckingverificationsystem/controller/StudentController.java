@@ -52,12 +52,11 @@ public class StudentController {
         return ResponseEntity.ok(new ResponseMessage("SUCCESS", 0, Map.of("student", student)));
     }
 
-    @PostMapping(value = "/register/course/{matric}")
+    @PostMapping(value = "/register/course")
     public ResponseEntity<ResponseMessage> registerCourses(
-            @PathVariable @NotBlank String matric,
             @RequestBody @Valid RegisterStudentCoursesRequest registerStudentCoursesRequest) {
 
-        studentService.registerCourses(matric, registerStudentCoursesRequest);
+        studentService.registerCourses(registerStudentCoursesRequest);
 
         return ResponseEntity.ok(new ResponseMessage("SUCCESS", 0, Map.of()));
 
