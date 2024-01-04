@@ -316,7 +316,6 @@ public class StudentResultService {
             Optional<String> session) {
 
         Student student = studentService.findStudentByMatric(matric);
-
         return prepareStudentResult(student, semester, session);
     }
 

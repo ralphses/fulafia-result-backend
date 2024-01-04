@@ -16,7 +16,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -27,18 +26,15 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static com.clicks.fulafiaresultcheckingverificationsystem.enums.UserRole.ADMIN;
-import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @Configuration
 @RequiredArgsConstructor
 @EnableWebSecurity
 public class Security {
-
 
     @Value("${admin.sender}")
     private String adminEmail;
@@ -59,7 +55,6 @@ public class Security {
     private final DepartmentRepository departmentRepository;
     private final DepartmentCourseRepository departmentCourseRepository;
     private final ResultGeneralCredentialRepository resultGeneralCredentialRepository;
-
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -202,7 +197,6 @@ public class Security {
                                 .title("Introduction to Biology")
                                 .unit(3)
                                 .build()
-
                         )
         );
     }
